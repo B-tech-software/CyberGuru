@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberGuru-SpartanSoldier | Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --primary-color: #00FF41; /* Neon green */
+            --bg-color: #0a0a0a;
+            --secondary-color: #00FFD1; /* Cyan */
+            --text-color: #e0e0e0;
+            --card-bg: rgba(20, 20, 20, 0.7);
+            --border-glow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color);
+            --shadow-glow: 0 0 15px var(--primary-color);
+        }
+
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Loading Screen Styling */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9999;
+            transition: opacity 1s ease-out;
+            opacity: 1;
+        }
+        .loading-text {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 2px solid var(--primary-color);
+            animation: blink-caret .75s step-end infinite;
+        }
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: var(--primary-color); }
+        }
+        .loading-line {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .progress-bar-container {
+            width: 80%;
+            max-width: 500px;
+            height: 15px;
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 0 5px var(--primary-color);
+            margin-top: 2rem;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0;
+            transition: width 0.5s ease;
+        }
+
+        /* Matrix effect canvas */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.15;
+        }
+
+        /* Section styling */
+        section {
+            padding: 80px 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        /* Heading styling */
+        h1, h2, h3 {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* Text effects */
+        .glitch {
+            text-shadow: 0 0 10px var(--primary-color);
+            animation: glitch-effect 5s infinite;
+        }
+
+        @keyframes glitch-effect {
+            0% { text-shadow: 0 0 10px var(--primary-color); }
+            5% { text-shadow: 2px 2px 5px var(--secondary-color); }
+            10% { text-shadow: -2px -2px 5px var(--primary-color); }
+            15% { text-shadow: 1px -1px 3px var(--secondary-color); }
+            20% { text-shadow: -1px 1px 3px var(--primary-color); }
+            25% { text-shadow: 0 0 10px var(--primary-color); }
+            100% { text-shadow: 0 0 10px var(--primary-color); }
+        }
+
+        /* Card styling */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--primary-color);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--border-glow);
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 0 15px var(--primary-color), 0 0 25px var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        /* Input and button styling */
+        .input, .textarea {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--secondary-color);
+            box-shadow: 0 0 5px var(--secondary-color);
+            color: var(--text-color);
+            transition: box-shadow 0.3s ease;
+        }
+        .input:focus, .textarea:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--secondary-color), 0 0 20px var(--secondary-color);
+        }
+        .btn {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: var(--border-glow);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color);
+        }
+        
+        .social-icon {
+            transition: all 0.3s ease;
+        }
+        .social-icon:hover {
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        /* Progress bars */
+        .skill-bar {
+            height: 10px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--secondary-color);
+            overflow: hidden;
+            box-shadow: var(--border-glow);
+        }
+        .skill-level {
+            height: 100%;
+            background-color: var(--primary-color);
+            animation: fill-bar 1.5s ease-out;
+        }
+        @keyframes fill-bar {
+            from { width: 0; }
+        }
+        
+        /* Image gallery styling */
+        .gallery-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border: 1px solid var(--primary-color);
+            box-shadow: var(--border-glow);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .gallery-image:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--primary-color);
+        }
+
+        /* Lightbox styling */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .lightbox.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .lightbox-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 100%;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: var(--primary-color);
+            font-size: 2rem;
+            cursor: pointer;
+            text-shadow: 0 0 10px var(--primary-color);
+            transition: text-shadow 0.3s;
+        }
+        .close-btn:hover {
+            text-shadow: 0 0 20px var(--primary-color);
+        }
+
+        /* Footer styling */
+        .cyber-footer {
+            background: rgba(0, 0, 0, 0.7);
+            border-top: 1px solid var(--secondary-color);
+            position: relative;
+            overflow: hidden;
+        }
+        .cyber-footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg, 
+                transparent, 
+                rgba(0, 255, 65, 0.1), 
+                transparent
+            );
+            animation: scanline 10s infinite linear;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 1.5rem; }
+            .grid-cols-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="flex flex-col items-center justify-center">
+        <div id="loading-terminal" class="space-y-2 text-center">
+            <div class="loading-line"></div>
+            <div class="loading-line"></div>
+            <div class="loading-line"></div>
+            <div class="loading-line"></div>
+        </div>
+        <div class="progress-bar-container">
+            <div id="loading-progress" class="progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- Matrix Canvas -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- Navigation -->
+    <header class="fixed top-0 left-0 w-full z-50 bg-black/50 backdrop-blur-lg">
+        <nav class="container mx-auto flex flex-wrap justify-between items-center py-4 px-6 text-lg">
+            <div class="font-bold text-xl text-primary-color">Lewis Timba</div>
+            <div class="flex flex-wrap gap-4 sm:gap-8">
+                <a href="#hero" class="text-white hover:text-primary-color transition-colors duration-300 flex flex-col items-center">
+                    <i class="fas fa-home text-2xl"></i>
+                    <span class="mt-1">HOME</span>
+                </a>
+                <a href="#about" class="text-white hover:text-primary-color transition-colors duration-300 flex flex-col items-center">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                    <span class="mt-1">ABOUT</span>
+                </a>
+                <a href="#journey" class="text-white hover:text-primary-color transition-colors duration-300 flex flex-col items-center">
+                    <i class="fas fa-graduation-cap text-2xl"></i>
+                    <span class="mt-1">JOURNEY</span>
+                </a>
+                <a href="#services" class="text-white hover:text-primary-color transition-colors duration-300 flex flex-col items-center">
+                    <i class="fas fa-server text-2xl"></i>
+                    <span class="mt-1">SERVICES</span>
+                </a>
+                <a href="#contact" class="text-white hover:text-primary-color transition-colors duration-300 flex flex-col items-center">
+                    <i class="fas fa-envelope text-2xl"></i>
+                    <span class="mt-1">CONTACT</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4" id="main-content">
+        <!-- Hero Section -->
+        <section id="hero" class="flex flex-col items-center justify-center text-center">
+            <h1 id="intro-text" class="text-4xl sm:text-6xl md:text-7xl font-bold mb-4 glitch"></h1>
+            <p class="text-lg sm:text-xl md:text-2xl text-secondary-color">Cyber Security | Penetration Testing | Digital Forensics</p>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-12">
+            <div class="w-full md:w-1/3">
+                <!-- Profile Image -->
+                <img id="profile-image" src="/assets/images/sparta2.jpg" alt="Lewis Timba" class="rounded-full border-4 border-primary-color shadow-lg shadow-primary-color/50 transition-opacity duration-1000">
+            </div>
+            <div class="w-full md:w-2/3 text-center md:text-left">
+                <h2 class="text-3xl sm:text-4xl mb-4">WHO I AM</h2>
+                <p class="text-lg">
+                    Greetings, fellow digital trailblazer. My name is **Lewis Timba**, also known as **CyberGuru-SpartanSoldier**. I am a seasoned cyber engineer with a passion for securing the digital frontier. My mission is to build resilient systems, uncover vulnerabilities, and empower others with the knowledge to navigate the complex world of cyber threats.
+                </p>
+                <div class="mt-8">
+                    <p class="text-sm text-gray-400">Navigate the sections below to learn more about my skills, portfolio, and digital journal.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Educational Journey Section -->
+        <section id="journey" class="text-center">
+            <h2 class="text-3xl sm:text-4xl mb-12">EDUCATIONAL JOURNEY & CERTIFICATES</h2>
+            <div class="relative max-w-4xl mx-auto">
+                <div class="absolute w-1 h-full bg-primary-color left-1/2 -translate-x-1/2 rounded-full hidden md:block"></div>
+                <!-- Journey Item 1 -->
+                <div class="flex flex-col md:flex-row items-center w-full my-8">
+                    <div class="md:w-1/2 p-4 md:text-right">
+                        <div class="card p-6 rounded-lg">
+                            <h3 class="text-xl mb-2">Certified Red Hat Proffesional</h3>
+                            <p class="text-sm text-secondary-color">University of Digital Frontiers, 2023</p>
+                            <p class="text-base mt-2">Specialized in advanced penetration testing and digital forensics.</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 p-4 md:text-left">
+                        <div class="card p-6 rounded-lg">
+                            <h3 class="text-xl mb-2">Certified Ethical Hacker (CEH)</h3>
+                            <p class="text-sm text-secondary-color">EC-Council, 2024</p>
+                            <p class="text-base mt-2">Proven expertise in ethical hacking methodologies and tools.</p>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Journey Item 2 -->
+                 <div class="flex flex-col md:flex-row items-center w-full my-8">
+                    <div class="md:w-1/2 p-4 md:text-right md:order-last">
+                        <div class="card p-6 rounded-lg">
+                            <h3 class="text-xl mb-2">BSc CyberSecurity</h3>
+                            <p class="text-sm text-secondary-color">University of Zimbabwe, 2025</p>
+                            <p class="text-base mt-2">Focused on algorithms, data structures, and network protocols.</p>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 p-4 md:text-left md:order-first">
+                        <div class="card p-6 rounded-lg">
+                            <h3 class="text-xl mb-2">Offensive Security Certified Professional (OSCP)</h3>
+                            <p class="text-sm text-secondary-color">Offensive Security, 2024</p>
+                            <p class="text-base mt-2">Hands-on, practical ethical hacking certification.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills Section -->
+        <section id="skills" class="text-center">
+            <h2 class="text-3xl sm:text-4xl mb-12">SKILL MATRIX</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Skill 1 -->
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl mb-2">Python</h3>
+                    <div class="skill-bar">
+                        <div class="skill-level" style="width: 95%;"></div>
+                    </div>
+                    <p class="text-sm mt-2">Expert-level scripting, automation, and exploit development.</p>
+                </div>
+                <!-- Skill 2 -->
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl mb-2">Network Security</h3>
+                    <div class="skill-bar">
+                        <div class="skill-level" style="width: 90%;"></div>
+                    </div>
+                    <p class="text-sm mt-2">Firewalls, intrusion detection systems, and network forensics.</p>
+                </div>
+                <!-- Skill 3 -->
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl mb-2">Penetration Testing</h3>
+                    <div class="skill-bar">
+                        <div class="skill-level" style="width: 85%;"></div>
+                    </div>
+                    <p class="text-sm mt-2">Web application, mobile, and network penetration testing.</p>
+                </div>
+                <!-- Skill 4 -->
+                <div class="card p-6 rounded-lg">
+                    <h3 class="text-xl mb-2">Linux & BASH</h3>
+                    <div class="skill-bar">
+                        <div class="skill-level" style="width: 95%;"></div>
+                    </div>
+                    <p class="text-sm mt-2">System administration, scripting, and server hardening.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portfolio & Demos Section -->
+        <section id="portfolio" class="text-center">
+            <h2 class="text-3xl sm:text-4xl mb-12">LIVE DEMOS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1 -->
+                <div class="card p-6 rounded-lg flex flex-col items-center">
+                    <img src="assets/images/sparta2.jpg" alt="Project 1" class="rounded-lg mb-4">
+                    <h3 class="text-xl mb-2">Password Cracker</h3>
+                    <p class="text-sm mb-4">A powerful tool for cracking hashed passwords using GPU acceleration.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="btn py-2 px-4 rounded-full">Live Demo</a>
+                    </div>
+                </div>
+                <!-- Project 2 -->
+                <div class="card p-6 rounded-lg flex flex-col items-center">
+                    <img src="https://placehold.co/300x200/0a0a0a/00ff41?text=Project+2" alt="Project 2" class="rounded-lg mb-4">
+                    <h3 class="text-xl mb-2">Secure Chat App</h3>
+                    <p class="text-sm mb-4">An end-to-end encrypted messaging application built with Python.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="btn py-2 px-4 rounded-full">Live Demo</a>
+                    </div>
+                </div>
+                <!-- Project 3 -->
+                <div class="card p-6 rounded-lg flex flex-col items-center">
+                    <img src="https://placehold.co/300x200/0a0a0a/00ff41?text=Project+3" alt="Project 3" class="rounded-lg mb-4">
+                    <h3 class="text-xl mb-2">Malware Sandbox</h3>
+                    <p class="text-sm mb-4">An isolated environment to safely analyze malicious software behavior.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="btn py-2 px-4 rounded-full">Live Demo</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Image Gallery Preview Section -->
+        <section id="gallery-preview" class="text-center">
+            <h2 class="text-3xl sm:text-4xl mb-12">PHOTO LOG</h2>
+            <div id="gallery-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- A few images will be generated by JavaScript -->
+            </div>
+            <a href="#full-gallery" class="btn mt-8 py-3 px-8 rounded-full text-xl inline-block">VIEW ALL PHOTOS</a>
+        </section>
+
+        <!-- Full Image Gallery Section (hidden until scrolled to) -->
+        <section id="full-gallery" class="text-center hidden">
+            <h2 class="text-3xl sm:text-4xl mb-12">ALL PHOTOS</h2>
+            <div id="full-gallery-container" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- All 26 images will be generated here -->
+            </div>
+        </section>
+
+        <!-- Cyber Events Section -->
+        <section id="events" class="text-center">
+            <h2 class="text-3xl sm:text-4xl mb-12">OPERATIONAL LOGS</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Event 1 -->
+                <div class="card p-6 rounded-lg text-left">
+                    <img src="https://placehold.co/400x250/0a0a0a/00ff41?text=Def+Con+32+Photo" alt="Def Con 32" class="w-full h-auto rounded-lg mb-4 border border-primary-color shadow-lg shadow-primary-color/50">
+                    <h3 class="text-xl text-secondary-color mb-2">Def Con 32 - Hacking Conference</h3>
+                    <p class="text-sm mb-2">**Location:** Las Vegas, NV | **Date:** Aug 2024</p>
+                    <p class="text-base">
+                        **Learnings:** Participated in the Capture The Flag competition and attended workshops on zero-day exploit discovery.
+                    </p>
+                </div>
+                <!-- Event 2 -->
+                <div class="card p-6 rounded-lg text-left">
+                    <img src="https://placehold.co/400x250/0a0a0a/00ff41?text=Cyber+Security+Summit+Photo" alt="Cyber Security Summit" class="w-full h-auto rounded-lg mb-4 border border-primary-color shadow-lg shadow-primary-color/50">
+                    <h3 class="text-xl text-secondary-color mb-2">Cyber Security Summit - New York</h3>
+                    <p class="text-sm mb-2">**Location:** New York, NY | **Date:** Mar 2024</p>
+                    <p class="text-base">
+                        **Learnings:** Gained insights into the latest AI-driven threats and counter-measures. Networked with industry leaders.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="text-center">
+            <h2 class="text-3xl sm:text-4xl mb-12">OFFERED SERVICES</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div class="card p-6 rounded-lg text-left">
+                    <h3 class="text-xl mb-2">Vulnerability Assessment</h3>
+                    <p class="text-sm text-secondary-color mb-4">Proactive identification of security weaknesses.</p>
+                    <p class="text-base">I conduct comprehensive scans and manual tests to find and report on system and application vulnerabilities before they can be exploited.</p>
+                </div>
+                <div class="card p-6 rounded-lg text-left">
+                    <h3 class="text-xl mb-2">Digital Forensics</h3>
+                    <p class="text-sm text-secondary-color mb-4">Investigating digital footprints to uncover cybercrimes.</p>
+                    <p class="text-base">My expertise in digital forensics allows me to trace cyberattacks, recover compromised data, and provide detailed reports for incident response.</p>
+                </div>
+                <div class="card p-6 rounded-lg text-left">
+                    <h3 class="text-xl mb-2">Security Auditing</h3>
+                    <p class="text-sm text-secondary-color mb-4">Ensuring compliance with industry security standards.</p>
+                    <p class="text-base">I perform thorough audits of security policies, infrastructure, and procedures to ensure compliance and strengthen overall security posture.</p>
+                </div>
+            </div>
+            <a href="#contact" class="btn mt-12 py-3 px-8 rounded-full text-xl inline-block">HIRE ME</a>
+        </section>
+
+        <!-- Cyber Intelligence Log Section -->
+        <section id="journal" class="text-center">
+            <h2 class="text-3xl sm:text-4xl mb-12">CYBER INTELLIGENCE LOG</h2>
+            <p class="text-lg mb-8 max-w-2xl mx-auto">
+                Here I share some of the latest findings and insights from my work in the field.
+            </p>
+            <div class="card p-8 rounded-lg">
+                <div class="font-semibold text-left mb-4">> cat /cyber/intel_log</div>
+                <div id="intel-log" class="text-left space-y-4">
+                    <!-- Dynamic content will be generated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="text-center">
+            <h2 class="text-3xl sm:text-4xl mb-12">INITIATE CONNECTION</h2>
+            <div class="card p-8 rounded-lg max-w-lg mx-auto">
+                <p class="mb-6 text-lg">
+                    I am open to new collaborations and projects. Feel free to send a secure message.
+                </p>
+                <form class="space-y-4">
+                    <input type="text" placeholder="NAME" class="input w-full p-3 rounded">
+                    <input type="email" placeholder="EMAIL" class="input w-full p-3 rounded">
+                    <textarea placeholder="MESSAGE" rows="5" class="textarea w-full p-3 rounded"></textarea>
+                    <button type="submit" class="btn w-full p-3 rounded">SEND MESSAGE</button>
+                </form>
+                <div class="flex justify-center space-x-6 mt-8">
+                    <a href="#" class="social-icon text-white hover:text-primary-color">
+                        <i class="fab fa-github text-3xl"></i>
+                    </a>
+                    <a href="#" class="social-icon text-white hover:text-primary-color">
+                        <i class="fab fa-linkedin-in text-3xl"></i>
+                    </a>
+                    <a href="#" class="social-icon text-white hover:text-primary-color">
+                        <i class="fab fa-twitter text-3xl"></i>
+                    </a>
+                    <a href="#" class="social-icon text-white hover:text-primary-color">
+                        <i class="fab fa-whatsapp text-3xl"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lightbox for Image Gallery -->
+        <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+            <span class="close-btn">&times;</span>
+            <div class="lightbox-content">
+                <img id="lightbox-image" src="" alt="">
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="cyber-footer text-center text-sm py-8 text-gray-500">
+        <p class="glitch text-lg text-primary-color font-bold mb-2">Lewis Timba // CyberGuru-SpartanSoldier</p>
+        <p>&copy; 2025 All rights reserved. Encrypted communication channel established.</p>
+        <div class="flex justify-center space-x-6 mt-4">
+            <a href="#" class="social-icon text-white hover:text-primary-color">
+                <i class="fab fa-github text-2xl"></i>
+            </a>
+            <a href="#" class="social-icon text-white hover:text-primary-color">
+                <i class="fab fa-linkedin-in text-2xl"></i>
+            </a>
+            <a href="#" class="social-icon text-white hover:text-primary-color">
+                <i class="fab fa-twitter text-2xl"></i>
+            </a>
+            <a href="#" class="social-icon text-white hover:text-primary-color">
+                <i class="fab fa-whatsapp text-2xl"></i>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // --- Loading Screen Script (Improved) ---
+        window.addEventListener('load', () => {
+            const loadingScreen = document.getElementById('loading-screen');
+            const mainContent = document.getElementById('main-content');
+            const progressBar = document.getElementById('loading-progress');
+            const lines = [
+                "> INITIALIZING CORE SYSTEMS...",
+                "> VERIFYING SECURITY PROTOCOLS...",
+                "> RETRIEVING ASSETS...",
+                "> CONNECTION SECURED. ACCESS GRANTED."
+            ];
+            const lineElements = document.querySelectorAll('.loading-line');
+            let currentLineIndex = 0;
+
+            function typeWriter(text, element, callback) {
+                let charIndex = 0;
+                element.textContent = '';
+                const interval = setInterval(() => {
+                    if (charIndex < text.length) {
+                        element.textContent += text.charAt(charIndex);
+                        charIndex++;
+                    } else {
+                        clearInterval(interval);
+                        if (callback) callback();
+                    }
+                }, 50); // Typing speed
+            }
+
+            function showNextLine() {
+                if (currentLineIndex < lines.length) {
+                    const currentLine = lineElements[currentLineIndex];
+                    currentLine.style.opacity = '1';
+                    typeWriter(lines[currentLineIndex], currentLine, () => {
+                        currentLineIndex++;
+                        if (currentLineIndex === lines.length) {
+                            // Last line, show progress bar
+                            document.querySelector('.progress-bar-container').style.opacity = '1';
+                            let progress = 0;
+                            const progressInterval = setInterval(() => {
+                                progress += 5;
+                                progressBar.style.width = progress + '%';
+                                if (progress >= 100) {
+                                    clearInterval(progressInterval);
+                                    // All lines and progress shown, fade out loading screen
+                                    setTimeout(() => {
+                                        loadingScreen.style.opacity = '0';
+                                        setTimeout(() => {
+                                            loadingScreen.style.display = 'none';
+                                            mainContent.style.opacity = '1';
+                                        }, 1000);
+                                    }, 500);
+                                }
+                            }, 50);
+                        } else {
+                            setTimeout(showNextLine, 1000); // Delay before next line
+                        }
+                    });
+                }
+            }
+            
+            showNextLine();
+        });
+
+        // --- Matrix Animation Script ---
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+        let columns = Math.floor(width / 20);
+        let drops = [];
+        for(let i = 0; i < columns; i++) {
+            drops[i] = 1;
+        }
+
+        const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%^&*()_+-=[]{}|;':\",./<>?`~";
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(10, 10, 10, 0.05)';
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = '#00FF41';
+            ctx.font = '20px monospace';
+
+            for(let i = 0; i < drops.length; i++) {
+                const text = characters[Math.floor(Math.random() * characters.length)];
+                ctx.fillText(text, i * 20, drops[i] * 20);
+
+                if(drops[i] * 20 > height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 50);
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            columns = Math.floor(width / 20);
+            drops = [];
+            for(let i = 0; i < columns; i++) {
+                drops[i] = 1;
+            }
+        });
+
+        // --- Typewriter Effect Script ---
+        const introTextElement = document.getElementById('intro-text');
+        const phrases = ["CyberGuru-SpartanSoldier", "Lewis Timba"];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let isRedacted = false;
+
+        function type() {
+            const currentPhrase = phrases[phraseIndex];
+            let displayPhrase;
+            if (isRedacted) {
+                displayPhrase = "[REDACTED]";
+            } else {
+                displayPhrase = isDeleting ? currentPhrase.substring(0, charIndex--) : currentPhrase.substring(0, charIndex++);
+            }
+            introTextElement.textContent = displayPhrase;
+
+            let typingSpeed = 100;
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                if (phraseIndex === 0) {
+                    isRedacted = true;
+                    typingSpeed = 1000;
+                    setTimeout(() => {
+                        isRedacted = false;
+                        isDeleting = true;
+                        setTimeout(type, 500);
+                    }, typingSpeed);
+                    return;
+                } else {
+                    typingSpeed = 2000;
+                    isDeleting = true;
+                }
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typingSpeed = 500;
+            }
+
+            setTimeout(type, typingSpeed);
+        }
+
+        // Start the typewriter effect
+        window.addEventListener('load', () => {
+             type();
+        });
+
+        // --- Image Swapper Script ---
+        const profileImage = document.getElementById('profile-image');
+        const images = [
+            "https://placehold.co/400x400/0a0a0a/00ff41?text=Lewis+Timba",
+            "https://placehold.co/400x400/0a0a0a/00ff41?text=Lewis+at+a+Conference",
+            "https://placehold.co/400x400/0a0a0a/00ff41?text=Lewis+at+Workstation",
+            "https://placehold.co/400x400/0a0a0a/0a0a0a/00ff41?text=Lewis+with+Certificate"
+        ];
+        let currentImageIndex = 0;
+
+        function swapImage() {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            profileImage.src = images[currentImageIndex];
+        }
+
+        // Swap image every 5 seconds
+        setInterval(swapImage, 5000);
+
+        // --- Smooth Scrolling for Navigation ---
+        document.querySelectorAll('nav a, a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // --- Image Gallery and Lightbox Script ---
+        const galleryContainer = document.getElementById('gallery-container');
+        const fullGalleryContainer = document.getElementById('full-gallery-container');
+        const fullGallerySection = document.getElementById('full-gallery');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.getElementById('lightbox-image');
+
+        const totalImages = 26;
+        const previewImages = 8; // Number of images to show on the main page
+
+        // Generate and display a few images on the main page
+        for (let i = 1; i <= previewImages; i++) {
+            const img = document.createElement('img');
+            img.src = `https://placehold.co/300x200/0a0a0a/00ff41?text=Photo+${i}`;
+            img.alt = `Gallery Photo ${i}`;
+            img.classList.add('gallery-image', 'rounded-lg');
+            img.onclick = () => openLightbox(img.src);
+            galleryContainer.appendChild(img);
+        }
+
+        // Generate all 26 images in the full gallery section
+        for (let i = 1; i <= totalImages; i++) {
+            const img = document.createElement('img');
+            img.src = `https://placehold.co/300x200/0a0a0a/00ff41?text=Photo+${i}`;
+            img.alt = `Gallery Photo ${i}`;
+            img.classList.add('gallery-image', 'rounded-lg');
+            img.onclick = () => openLightbox(img.src);
+            fullGalleryContainer.appendChild(img);
+        }
+
+        function openLightbox(src) {
+            lightboxImage.src = src;
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox(event) {
+            if (event.target.id === 'lightbox' || event.target.classList.contains('close-btn')) {
+                lightbox.classList.remove('active');
+            }
+        }
+
+        // --- Cyber Intelligence Log Script ---
+        const intelLog = document.getElementById('intel-log');
+        const logs = [
+            `> Initializing intel data stream...`,
+            `> Finding: Zero-day exploit in legacy systems. Threat Level: CRITICAL. Recommended action: Patch immediately.`,
+            `> Anomaly: Detected new variant of 'Spectre' malware. Uses advanced polymorphism.`,
+            `> Report: Q3 2025 Phishing trends show a 40% increase in AI-generated fake invoices.`,
+            `> Warning: Public Wi-Fi networks remain a high-risk vector for data interception.`
+        ];
+        let currentLogIndex = 0;
+
+        function displayNextLog() {
+            if (currentLogIndex < logs.length) {
+                const p = document.createElement('p');
+                p.textContent = logs[currentLogIndex];
+                p.style.opacity = '0';
+                p.style.transition = 'opacity 1s ease-in-out';
+                intelLog.appendChild(p);
+
+                // Force reflow to enable transition
+                p.offsetHeight; 
+                p.style.opacity = '1';
+
+                currentLogIndex++;
+                setTimeout(displayNextLog, 3000); // Display next log every 3 seconds
+            }
+        }
+        
+        // Use Intersection Observer to start log animation when section is visible
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    displayNextLog();
+                    observer.unobserve(entry.target); // Stop observing once it's triggered
+                }
+            });
+        }, {
+            threshold: 0.5 // Trigger when 50% of the section is visible
+        });
+        
+        observer.observe(document.getElementById('journal'));
+    </script>
+</body>
+</html>
